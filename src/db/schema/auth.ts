@@ -8,7 +8,7 @@ import {
     timestamp,
     uniqueIndex,
 } from "drizzle-orm/pg-core";
-import {inventoryCount, inventoryMovement, purchase, sale} from "./app";
+import {expirationAlert, inventoryCount, inventoryMovement, purchase, sale} from "./app";
 
 const timestamps = {
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -18,14 +18,16 @@ const timestamps = {
         .notNull(),
 };
 
-export const roleEnum = pgEnum("role", ["auxiliar", "gerente", "admin"]);
+export const roleEnum = pgEnum("role", ["empleado", "admin"]);
+export type Role = typeof roleEnum.enumValues[number];
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     email: text("email").notNull(),
     emailVerified: boolean("email_verified").notNull(),
-    role: roleEnum("role").notNull().default("auxiliar"),
+    role: roleEnum("role").notNull().default("empleado"),
+    active: boolean("active").notNull().default(true),
 
     ...timestamps,
 });
@@ -100,6 +102,7 @@ export const usersRelations = relations(user, ({ many }) => ({
     sales: many(sale),
     inventoryCounts: many(inventoryCount),
     inventoryMovements: many(inventoryMovement),
+    expirationAlerts: many(expirationAlert),
 }));
 
 export const sessionsRelations = relations(session, ({ one }) => ({

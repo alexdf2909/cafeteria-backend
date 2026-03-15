@@ -1,0 +1,26 @@
+ALTER TABLE "inventory_count_line" ALTER COLUMN "system_quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "inventory_count_line" ALTER COLUMN "counted_quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "inventory_movement" ALTER COLUMN "quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "item" ALTER COLUMN "min_stock" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "item" ALTER COLUMN "reorder_point" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "item" ALTER COLUMN "max_stock" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "item_package" ALTER COLUMN "package_quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "item_package" ALTER COLUMN "base_unit_quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "item_supplier" ALTER COLUMN "last_unit_cost" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "lot_balance" ALTER COLUMN "quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "product_presentation" ALTER COLUMN "price" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "purchase" ALTER COLUMN "total_cost" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "purchase_item" ALTER COLUMN "unit_cost" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "recipe_item" ALTER COLUMN "quantity" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "recipe_item" ALTER COLUMN "extra_price" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale" ALTER COLUMN "subtotal_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale" ALTER COLUMN "discount_total" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale" ALTER COLUMN "tax_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale" ALTER COLUMN "total_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale_product" ALTER COLUMN "unit_price" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale_product" ALTER COLUMN "discount_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale_product" ALTER COLUMN "total_line_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale_recipe_optional" ALTER COLUMN "unit_price" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale_recipe_optional" ALTER COLUMN "discount_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sale_recipe_optional" ALTER COLUMN "total_amount" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "unit" ALTER COLUMN "to_base_factor" DROP DEFAULT;
