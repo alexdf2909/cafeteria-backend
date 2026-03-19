@@ -1,13 +1,13 @@
 import {asyncHandler} from "../../common/http/async.handler";
 import {
-    createItemPackageSchema,
+    createItemPackageSchema, getItemPackagesQuerySchema,
     ItemPackageParams,
     itemPackageParamsSchema,
     updateItemPackageSchema
 } from "./itemPackage.dto";
 import {
     createItemPackageService,
-    getItemPackageByIdService,
+    getItemPackageByIdService, getItemPackagesService,
     getSuppliersByItemPackageService,
     updateItemPackageService
 } from "./itemPackage.service";
@@ -20,6 +20,12 @@ export const getItemPackageByIdController = asyncHandler(async (req, res) => {
     const result = await getItemPackageByIdService(id);
 
     return successResponse(res, result);
+});
+
+export const getItemPackagesController = asyncHandler(async (req, res) => {
+    const parsedQuery = getItemPackagesQuerySchema.parse(req.query);
+    const result = await getItemPackagesService(parsedQuery);
+    return successResponse(res, result.data, undefined, result.meta);
 });
 
 export const createItemPackageController = asyncHandler(async (req, res) => {

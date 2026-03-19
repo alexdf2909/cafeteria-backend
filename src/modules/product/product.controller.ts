@@ -17,7 +17,7 @@ import {
     getProductByIdService,
     getProductsService,
     updateProductService,
-    updatePresentationService,
+    updatePresentationService, getPresentationByIdService,
 } from "./product.service";
 
 // ─── Product ─────────────────────────────────────────────────────────────────
@@ -48,6 +48,12 @@ export const updateProductController = asyncHandler(async (req, res) => {
 });
 
 // ─── Product Presentation ────────────────────────────────────────────────────
+
+export const getPresentationByIdController = asyncHandler(async (req, res) => {
+    const { id }: PresentationParams = presentationParamsSchema.parse(req.params);
+    const result = await getPresentationByIdService(id);
+    return successResponse(res, result);
+});
 
 export const createPresentationController = asyncHandler(async (req, res) => {
     const { id }: ProductParams = productParamsSchema.parse(req.params);

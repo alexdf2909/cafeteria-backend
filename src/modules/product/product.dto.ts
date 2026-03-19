@@ -82,3 +82,11 @@ export const updatePresentationSchema = z.object({
     { message: "At least one field must be provided for update" }
 );
 export type UpdatePresentationDto = z.infer<typeof updatePresentationSchema>;
+
+export const getProductsByCategoryQuerySchema = z.object({
+    categoryId: z.number().int().positive(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(10),
+});
+
+export type GetProductsByCategoryQuery = z.infer<typeof getProductsByCategoryQuerySchema>;

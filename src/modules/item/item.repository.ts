@@ -19,7 +19,7 @@ export class ItemRepository extends BaseRepository<typeof item, NewItem, UpdateI
         const stockSubquery = db
             .select({
                 itemId: inventoryLot.itemId,
-                totalStock: sql<number>`coalesce(sum(${lotBalance.quantity}), 0)`,
+                totalStock: sql<number>`coalesce(sum(${lotBalance.quantity}), 0)`.as("total_stock"), // ← agrega .as()
             })
             .from(inventoryLot)
             .leftJoin(lotBalance, eq(inventoryLot.id, lotBalance.lotId))
@@ -110,6 +110,7 @@ export class ItemRepository extends BaseRepository<typeof item, NewItem, UpdateI
                 baseUnit: {
                     name: unit.name,
                     symbol: unit.symbol,
+                    unitType: unit.unitType,
                 },
             })
             .from(item)
@@ -117,7 +118,7 @@ export class ItemRepository extends BaseRepository<typeof item, NewItem, UpdateI
             .leftJoin(unit, eq(item.baseUnitId, unit.id))
             .where(eq(item.id, id));
 
-        return result;
+        return result[0] ?? null;
     }
 
     async getItemsByCategory(query: GetItemsByCategoryQuery) {
@@ -165,10 +166,6 @@ export class ItemRepository extends BaseRepository<typeof item, NewItem, UpdateI
 
         return stock;
     }
-    // listar lotes del item por fecha de vencimiento o fecha de compra
-    // listar movimientos del item
-    // listar itemPackages del item
-
 }
 
 export const itemRepository = new ItemRepository();

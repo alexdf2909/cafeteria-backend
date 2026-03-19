@@ -7,7 +7,7 @@ import {
     expirationSchema,
     getMovementsQuerySchema,
     movementParamsSchema,
-    MovementParams,
+    MovementParams, expirationManualSchema,
 } from "./inventoryMovement.dto";
 import {
     getMovementsService,
@@ -16,8 +16,9 @@ import {
     transferStockService,
     adjustStockService,
     damageStockService,
-    resolveExpirationService,
+    resolveExpirationService, manualExpirationService,
 } from "./inventoryMovement.service";
+import {inventoryMovementRepository} from "./inventoryMovement.repository";
 
 export const getMovementsController = asyncHandler(async (req, res) => {
     const parsedQuery = getMovementsQuerySchema.parse(req.query);
@@ -58,4 +59,17 @@ export const resolveExpirationController = asyncHandler(async (req, res) => {
     const data = expirationSchema.parse(req.body);
     await resolveExpirationService(data, req.user!.id);
     return successResponse(res, null, "Expiration resolved successfully");
+});
+
+export const manualExpirationController = asyncHandler(async (req, res) => {
+    const data = expirationManualSchema.parse(req.body);
+    await manualExpirationService(data, req.user!.id);
+    return successResponse(res, null, "Expiration registered successfully");
+});
+
+export const getLotsByItemController = asyncHandler(async (req, res) => {
+    const { id } = movementParamsSchema.parse(req.params);
+    const location = req.query.location as "warehouse" | "sales_module" ?? "warehouse";
+    const result = await inventoryMovementRepository.getAvailableLotsFEFO(id, location);
+    return successResponse(res, result);
 });

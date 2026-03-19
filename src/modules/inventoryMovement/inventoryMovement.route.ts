@@ -7,7 +7,7 @@ import {
     transferStockController,
     adjustStockController,
     damageStockController,
-    resolveExpirationController,
+    resolveExpirationController, getLotsByItemController, manualExpirationController,
 } from "./inventoryMovement.controller";
 
 const router = Router();
@@ -15,14 +15,16 @@ const router = Router();
 router.use(authorize());
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
-router.get("/", authorize(["admin"]), getMovementsController);
+router.get("/", getMovementsController);
 router.get("/expired-alerts", getExpiredAlertsController);
 router.get("/stock/:id", getStockByItemController);
+router.get("/lots/:id", getLotsByItemController);
 
 // ─── Mutations ───────────────────────────────────────────────────────────────
-router.post("/transfer", authorize(["admin", "empleado"]), transferStockController);
-router.post("/adjustment", authorize(["admin"]), adjustStockController);
-router.post("/damage", authorize(["admin"]), damageStockController);
-router.post("/expiration", authorize(["admin", "empleado"]), resolveExpirationController);
+router.post("/transfer", transferStockController);
+router.post("/adjustment", adjustStockController);
+router.post("/damage", damageStockController);
+router.post("/expiration", resolveExpirationController);
+router.post("/expiration-manual", manualExpirationController);
 
 export default router;

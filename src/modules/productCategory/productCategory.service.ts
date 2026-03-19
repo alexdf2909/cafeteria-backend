@@ -106,7 +106,7 @@ export async function deleteProductCategoryService(
     return { message: "Unit deleted successfully" };
 }
 
-// LISTA DE ITEMS por categoria
+// LISTA DE productos por categoria
 export async function getProductsByCategoryService(query: GetProductsByCategoryQuery) {
     await productCategoryRepository.findByIdOrFail(query.categoryId);
 

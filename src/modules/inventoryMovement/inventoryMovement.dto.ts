@@ -54,3 +54,10 @@ export const movementParamsSchema = z.object({
     id: z.coerce.number().int().positive(),
 });
 export type MovementParams = z.infer<typeof movementParamsSchema>;
+
+export const expirationManualSchema = z.object({
+    lotId: z.number().int().positive(),
+    location: z.enum(["warehouse", "sales_module"]),
+    notes: z.string().optional(),  // ← quita .nullable()
+    movementDate: z.coerce.date(),
+});

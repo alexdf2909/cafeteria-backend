@@ -1,6 +1,11 @@
 import {BaseRepository} from "../../common/db/base.repository";
 import {item, itemPackage, itemSupplier, NewItemPackage, supplier, unit} from "../../db/schema";
-import {GetItemPackagesByItemQuery, GetItemPackagesBySupplierQuery, UpdateItemPackageDto} from "./itemPackage.dto";
+import {
+    GetItemPackagesByItemQuery,
+    GetItemPackagesBySupplierQuery,
+    GetItemPackagesQuery,
+    UpdateItemPackageDto
+} from "./itemPackage.dto";
 import {buildPagination} from "../../common/http/pagination.helpers";
 import {countRows} from "../../common/db/db.helpers";
 import {count, desc, eq, getTableColumns} from "drizzle-orm";
@@ -9,6 +14,41 @@ import {db} from "../../db";
 export class ItemPackageRepository extends BaseRepository<typeof itemPackage, NewItemPackage, UpdateItemPackageDto, number> {
     constructor() {
         super(itemPackage, itemPackage.id, "Item Package");
+    }
+
+    async getItemPackages(query: GetItemPackagesQuery) {
+        const { page, limit } = query;
+        const { currentPage, limitPerPage, offset } = buildPagination(page, limit);
+
+        const [data, countResult] = await Promise.all([
+            db
+                .select({
+                    ...getTableColumns(itemPackage),
+                    item: {
+                        id: item.id,
+                        name: item.name,
+                        sku: item.sku,
+                    },
+                    packageUnit: {
+                        name: unit.name,
+                        symbol: unit.symbol,
+                    },
+                })
+                .from(itemPackage)
+                .innerJoin(item, eq(itemPackage.itemId, item.id))
+                .leftJoin(unit, eq(itemPackage.packageUnitId, unit.id))
+                .orderBy(desc(itemPackage.createdAt))
+                .limit(limitPerPage)
+                .offset(offset),
+            db.select({ count: count() }).from(itemPackage),
+        ]);
+
+        return {
+            data,
+            total: Number(countResult[0]?.count ?? 0),
+            currentPage,
+            limitPerPage,
+        };
     }
 
     async findByIdWithDetails(id: number) {
@@ -80,6 +120,7 @@ export class ItemPackageRepository extends BaseRepository<typeof itemPackage, Ne
                 item: {
                     name: item.name,
                     sku: item.sku,
+                    isPerishable: item.isPerishable,
                 },
                 packageUnit: {
                     name: unit.name,

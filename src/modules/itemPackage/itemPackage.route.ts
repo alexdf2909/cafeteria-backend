@@ -2,7 +2,7 @@ import {Router} from "express";
 import {authorize} from "../../middlewares/authorize";
 import {
     createItemPackageController,
-    getItemPackageByIdController, getSuppliersByItemPackageController,
+    getItemPackageByIdController, getItemPackagesController, getSuppliersByItemPackageController,
     updateItemPackageController
 } from "./itemPackage.controller";
 
@@ -10,8 +10,9 @@ const router = Router();
 
 router.use(authorize());
 
+router.get("/", getItemPackagesController);
 router.post("/", createItemPackageController);
-router.put("/:id", updateItemPackageController);
+router.patch("/:id", updateItemPackageController);
 router.get("/:id", getItemPackageByIdController);
 router.get("/:id/proveedores", getSuppliersByItemPackageController);
 

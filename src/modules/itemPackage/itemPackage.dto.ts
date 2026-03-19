@@ -1,5 +1,12 @@
 import {z} from "zod";
 
+export const getItemPackagesQuerySchema = z.object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(10),
+});
+
+export type GetItemPackagesQuery = z.infer<typeof getItemPackagesQuerySchema>;
+
 export const getItemPackagesByItemQuerySchema = z.object({
     itemId: z.number().int().positive(),
     page: z.coerce.number().int().positive().default(1),
@@ -20,7 +27,7 @@ export const createItemPackageSchema = z.object({
     itemId: z.number().int().positive(),
     packageName: z.string().min(1).max(50),
     packageUnitId: z.number().int().positive(),
-    packageQuantity: z.number().int().positive(),
+    packageQuantity: z.number().positive(),
     barcode: z.string().min(1).max(50)
 });
 

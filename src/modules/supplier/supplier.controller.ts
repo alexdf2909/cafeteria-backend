@@ -61,14 +61,13 @@ export const updateSupplierController = asyncHandler(async (req, res) => {
 });
 
 export const getItemPackagesBySupplierController = asyncHandler(async (req, res) => {
-    const parsedQuery = getItemPackagesBySupplierQuerySchema.parse(req.query);
+    const { id } = supplierParamsSchema.parse(req.params);
 
-    const result = await getItemPackagesBySupplierService(parsedQuery);
+    const query = getItemPackagesBySupplierQuerySchema.parse({
+        ...req.query,
+        supplierId: id, // ← inyecta el id del param
+    });
 
-    return successResponse(
-        res,
-        result.data,
-        undefined,
-        result.meta,
-    );
+    const result = await getItemPackagesBySupplierService(query);
+    return successResponse(res, result.data, undefined, result.meta);
 });

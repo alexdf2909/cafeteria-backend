@@ -138,6 +138,12 @@ export async function updateProductService(productId: number, data: UpdateProduc
 
 // ─── Product Presentation ────────────────────────────────────────────────────
 
+export async function getPresentationByIdService(presentationId: number) {
+    const result = await productRepository.findPresentationById(presentationId);
+    if (!result) throw notFound("Presentation");
+    return result;
+}
+
 export async function createPresentationService(productId: number, data: CreatePresentationDto) {
     await productRepository.findByIdOrFail(productId);
 

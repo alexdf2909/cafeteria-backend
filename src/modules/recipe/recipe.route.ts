@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-router.use(authorize(["admin"]));
+router.use(authorize());
 
 router.get("/", getRecipesController);
 router.get("/:id", getRecipeByIdController);

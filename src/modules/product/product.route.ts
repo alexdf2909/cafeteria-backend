@@ -6,12 +6,13 @@ import {
     getProductByIdController,
     getProductsController,
     updateProductController,
-    updatePresentationController,
+    updatePresentationController, getPresentationByIdController,
 } from "./product.controller";
+import {getActivePresentationRecipeController} from "../recipe/recipe.controller";
 
 const router = Router();
 
-router.use(authorize(["admin"]));
+router.use(authorize());
 
 // ─── Product ─────────────────────────────────────────────────────────────────
 router.get("/", getProductsController);
@@ -20,7 +21,9 @@ router.get("/:id", getProductByIdController);
 router.patch("/:id", updateProductController);
 
 // ─── Product Presentation ────────────────────────────────────────────────────
+router.get("/presentations/:id", getPresentationByIdController);
 router.post("/:id/presentations", createPresentationController);
 router.patch("/presentations/:id", updatePresentationController);
+router.get("/presentations/:id/recipe", getActivePresentationRecipeController);
 
 export default router;

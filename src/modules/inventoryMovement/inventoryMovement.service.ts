@@ -79,6 +79,42 @@ export async function checkExpiredLots() {
     }
 }
 
+export async function manualExpirationService(
+    data: { lotId: number; location: "warehouse" | "sales_module"; notes?: string | null | undefined; movementDate: Date },
+    userId: string
+) {
+    return await db.transaction(async (tx) => {
+        const balances = await tx
+            .select()
+            .from(lotBalance)
+            .where(
+                and(
+                    eq(lotBalance.lotId, data.lotId),
+                    eq(lotBalance.location, data.location)
+                )
+            );
+
+        for (const balance of balances) {
+            if (Number(balance.quantity) > 0) {
+                await tx
+                    .update(lotBalance)
+                    .set({ quantity: 0 })
+                    .where(eq(lotBalance.id, balance.id));
+
+                await tx.insert(inventoryMovement).values({
+                    lotId: data.lotId,
+                    movementType: "expiration",
+                    quantity: balance.quantity,
+                    locationFrom: data.location,
+                    performedBy: userId,
+                    movementDate: data.movementDate,
+                    notes: data.notes,
+                });
+            }
+        }
+    });
+}
+
 // ─── Transfer ─────────────────────────────────────────────────────────────────
 
 export async function transferStockService(data: TransferDto, userId: string) {

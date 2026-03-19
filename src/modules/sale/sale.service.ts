@@ -130,10 +130,24 @@ export async function createSaleService(data: CreateSaleDto, userId: string) {
                 .from(item)
                 .where(eq(item.id, itemId))
                 .limit(1);
-
-            throw badRequest(
-                `Insufficient stock for "${itemData[0]?.name}". Available: ${totalAvailable}, needed: ${needed}`
+            // Verificar stock en warehouse
+            const warehouseAvailable = await inventoryMovementRepository.getAvailableLotsFEFO(
+                itemId,
+                "warehouse"
             );
+            const warehouseTotal = warehouseAvailable.reduce(
+                (sum, lot) => sum + Number(lot.availableQuantity), 0
+            );
+
+            if (warehouseTotal >= needed) {
+                throw badRequest(
+                    `Insufficient stock for "${itemData[0]?.name}" in sales module. Available: ${totalAvailable}, needed: ${needed}. Stock available in warehouse: ${warehouseTotal} — please do a transfer first.`
+                );
+            } else {
+                throw badRequest(
+                    `Insufficient stock for "${itemData[0]?.name}". Available in sales module: ${totalAvailable}, in warehouse: ${warehouseTotal}, needed: ${needed} — please register a purchase.`
+                );
+            }
         }
     }
 

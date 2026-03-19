@@ -1,5 +1,5 @@
 import { BaseRepository } from "../../common/db/base.repository";
-import {NewPurchase, purchase, purchaseItem, supplier, user} from "../../db/schema";
+import {item, itemPackage, NewPurchase, purchase, purchaseItem, supplier, unit, user} from "../../db/schema";
 import { GetPurchasesQuery } from "./purchase.dto";
 import { buildPagination } from "../../common/http/pagination.helpers";
 import { buildWhereClause, countRows } from "../../common/db/db.helpers";
@@ -86,8 +86,16 @@ export class PurchaseRepository extends BaseRepository <
         const items = await db
             .select({
                 ...getTableColumns(purchaseItem),
+                itemName: item.name,
+                itemSku: item.sku,
+                packageName: itemPackage.packageName,
+                packageQuantity: itemPackage.packageQuantity,
+                packageUnitSymbol: unit.symbol,
             })
             .from(purchaseItem)
+            .innerJoin(itemPackage, eq(purchaseItem.itemPackageId, itemPackage.id))
+            .innerJoin(item, eq(itemPackage.itemId, item.id))
+            .leftJoin(unit, eq(itemPackage.packageUnitId, unit.id))
             .where(eq(purchaseItem.purchaseId, id));
 
         return {

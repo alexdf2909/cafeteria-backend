@@ -1,5 +1,5 @@
 import { BaseRepository } from "../../common/db/base.repository";
-import {item, recipe, recipeItem, productPresentation, NewRecipe} from "../../db/schema";
+import {item, recipe, recipeItem, productPresentation, NewRecipe, unit} from "../../db/schema";
 import { GetRecipesQuery } from "./recipe.dto";
 import { buildPagination } from "../../common/http/pagination.helpers";
 import { buildWhereClause, countRows } from "../../common/db/db.helpers";
@@ -27,30 +27,45 @@ number
             isActive !== undefined ? eq(recipe.isActive, isActive) : undefined,
         ]);
 
-        const [data, countResult] = await Promise.all([
-            db
-                .select({
-                    ...getTableColumns(recipe),
-                    presentation: {
-                        id: productPresentation.id,
-                        name: productPresentation.name,
-                        price: productPresentation.price,
-                    },
-                })
-                .from(recipe)
-                .leftJoin(productPresentation, eq(recipe.productPresentationId, productPresentation.id))
-                .where(whereClause)
-                .orderBy(desc(recipe.createdAt))
-                .limit(limitPerPage)
-                .offset(offset),
-            db
-                .select({ count: count() })
-                .from(recipe)
-                .where(whereClause),
-        ]);
+        const recipes = await db
+            .select(getTableColumns(recipe))
+            .from(recipe)
+            .where(whereClause)
+            .orderBy(desc(recipe.version))
+            .limit(limitPerPage)
+            .offset(offset);
+
+        // Para cada receta obtener sus items
+        const recipesWithItems = await Promise.all(
+            recipes.map(async (r) => {
+                const items = await db
+                    .select({
+                        ...getTableColumns(recipeItem),
+                        item: {
+                            id: item.id,
+                            name: item.name,
+                            sku: item.sku,
+                        },
+                        unit: {
+                            symbol: unit.symbol, // ← agrega esto
+                        },
+                    })
+                    .from(recipeItem)
+                    .leftJoin(item, eq(recipeItem.itemId, item.id))
+                    .leftJoin(unit, eq(item.baseUnitId, unit.id)) // ← agrega este join
+                    .where(eq(recipeItem.recipeId, r.id));
+
+                return { ...r, items };
+            })
+        );
+
+        const countResult = await db
+            .select({ count: count() })
+            .from(recipe)
+            .where(whereClause);
 
         return {
-            data,
+            data: recipesWithItems,
             total: Number(countResult[0]?.count ?? 0),
             currentPage,
             limitPerPage,

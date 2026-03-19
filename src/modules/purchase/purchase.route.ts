@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-router.use(authorize(["admin"]));
+router.use(authorize());
 
 router.get("/", getPurchasesController);
 router.get("/:id", getPurchaseByIdController);

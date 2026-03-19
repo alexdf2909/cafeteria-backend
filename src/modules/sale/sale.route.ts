@@ -10,8 +10,8 @@ const router = Router();
 
 router.use(authorize());
 
-router.get("/", authorize(["admin"]), getSalesController);
-router.get("/:id", authorize(["admin"]), getSaleByIdController);
+router.get("/", getSalesController);
+router.get("/:id", getSaleByIdController);
 router.post("/", createSaleController);
 
 export default router;

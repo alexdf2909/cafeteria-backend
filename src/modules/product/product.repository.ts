@@ -1,14 +1,23 @@
 import { BaseRepository } from "../../common/db/base.repository";
-import {NewProduct, product, productCategory, productPresentation} from "../../db/schema";
 import {
-    CreatePresentationDto,
+    item,
+    itemCategory,
+    NewProduct,
+    product,
+    productCategory,
+    productPresentation,
+    recipe, recipeItem,
+    unit
+} from "../../db/schema";
+import {
+    CreatePresentationDto, GetProductsByCategoryQuery,
     GetProductsQuery,
     UpdatePresentationDto,
     UpdateProductDto,
 } from "./product.dto";
 import { buildPagination } from "../../common/http/pagination.helpers";
 import { buildWhereClause, countRows } from "../../common/db/db.helpers";
-import { count, desc, eq, getTableColumns, ilike, or } from "drizzle-orm";
+import {and, count, desc, eq, getTableColumns, ilike, or} from "drizzle-orm";
 import { db } from "../../db";
 
 export class ProductRepository extends BaseRepository <
@@ -86,9 +95,52 @@ number
             .where(eq(productPresentation.productId, id))
             .orderBy(productPresentation.name);
 
+        // Para cada presentación, obtener su receta activa con items
+        const presentationsWithRecipes = await Promise.all(
+            presentations.map(async (pres) => {
+                const activeRecipe = await db
+                    .select(getTableColumns(recipe))
+                    .from(recipe)
+                    .where(
+                        and(
+                            eq(recipe.productPresentationId, pres.id),
+                            eq(recipe.isActive, true)
+                        )
+                    )
+                    .limit(1);
+
+                if (!activeRecipe[0]) return { ...pres, recipe: null };
+
+                const recipeItems = await db
+                    .select({
+                        ...getTableColumns(recipeItem),
+                        item: {
+                            id: item.id,
+                            name: item.name,
+                            sku: item.sku,
+                        },
+                        unit: {
+                            symbol: unit.symbol, // ← agrega esto
+                        },
+                    })
+                    .from(recipeItem)
+                    .leftJoin(item, eq(recipeItem.itemId, item.id))
+                    .leftJoin(unit, eq(item.baseUnitId, unit.id))
+                    .where(eq(recipeItem.recipeId, activeRecipe[0].id));
+
+                return {
+                    ...pres,
+                    recipe: {
+                        ...activeRecipe[0],
+                        items: recipeItems,
+                    },
+                };
+            })
+        );
+
         return {
             ...productData[0],
-            presentations,
+            presentations: presentationsWithRecipes,
         };
     }
 
@@ -124,6 +176,37 @@ number
 
     async countPresentations(productId: number) {
         return countRows(productPresentation, eq(productPresentation.productId, productId));
+    }
+
+    async getProductsByCategory(query: GetProductsByCategoryQuery) {
+        const { categoryId, page, limit } = query;
+        const { currentPage, limitPerPage, offset } = buildPagination(page, limit);
+
+        const total = await countRows(item, eq(item.categoryId, categoryId));
+
+        const data = await db
+            .select({
+                ...getTableColumns(item),
+                baseUnit: {
+                    name: unit.name,
+                    symbol: unit.symbol,
+                },
+
+            })
+            .from(item)
+            .leftJoin(unit, eq(item.baseUnitId, unit.id))
+            .leftJoin(itemCategory, eq(item.categoryId, itemCategory.id))
+            .where(eq(item.categoryId, categoryId))
+            .orderBy(desc(item.createdAt))
+            .limit(limitPerPage)
+            .offset(offset);
+
+        return {
+            data,
+            total,
+            currentPage,
+            limitPerPage,
+        };
     }
 }
 

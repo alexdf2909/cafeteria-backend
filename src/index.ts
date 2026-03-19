@@ -17,11 +17,11 @@ import saleRouter from "./modules/sale/sale.route";
 import inventoryMovementRouter from "./modules/inventoryMovement/inventoryMovement.route";
 import inventoryCountRouter from "./modules/inventoryCount/inventoryCount.route";
 import userRouter from "./modules/user/user.route";
+import {toNodeHandler} from "better-auth/node";
+import {auth} from "./lib/auth";
 
 const app = express();
 const PORT = process.env.PORT ?? 8000;
-
-//app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use(
     cors({
@@ -30,6 +30,8 @@ app.use(
         credentials: true, // allow cookies
     })
 );
+
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use(express.json());
 

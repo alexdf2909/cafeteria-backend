@@ -63,15 +63,15 @@ export const getItemStockController = asyncHandler( async (req, res) => {
     return successResponse(res, result);
 });
 
-export const getItemPackagesByItemController = asyncHandler( async (req, res) => {
-    const parsedQuery = getItemPackagesByItemQuerySchema.parse(req.query);
+export const getItemPackagesByItemController = asyncHandler(async (req, res) => {
+    const { id } = itemParamsSchema.parse(req.params);
 
-    const result = await getItemPackagesByItemService(parsedQuery);
+    const query = getItemPackagesByItemQuerySchema.parse({
+        ...req.query,
+        itemId: id, // ← inyecta el id del param
+    });
 
-    return successResponse(
-        res,
-        result.data,
-        undefined,
-        result.meta,
-    );
+    const result = await getItemPackagesByItemService(query);
+
+    return successResponse(res, result.data, undefined, result.meta);
 });

@@ -6,9 +6,9 @@ const router = Router();
 
 router.use(authorize());
 
-router.get("/", authorize(["admin"]), getUsersController);
-router.post("/", authorize(["admin"]), createUserController);
-router.get("/:id", authorize(["admin", "empleado"]), getUserByIdController);
-router.patch("/:id", authorize(["admin", "empleado"]), updateUserController);
+router.get("/", getUsersController);
+router.post("/", createUserController);
+router.get("/:id", getUserByIdController);
+router.patch("/:id", updateUserController);
 
 export default router;
