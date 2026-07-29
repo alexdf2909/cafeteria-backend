@@ -103,7 +103,7 @@ export async function createInventoryCountService(
 
                         await tx.insert(inventoryMovement).values({
                             lotId: lastLot.lotId,
-                            movementType: "adjustment",
+                            movementType: "count",
                             quantity: difference,
                             locationTo: data.location,
                             inventoryCountLineId: newCountLine.id,
@@ -129,7 +129,7 @@ export async function createInventoryCountService(
 
                         await tx.insert(inventoryMovement).values({
                             lotId: lot.lotId,
-                            movementType: "adjustment",
+                            movementType: "count",
                             quantity: toDeduct,
                             locationFrom: data.location,
                             inventoryCountLineId: newCountLine.id,

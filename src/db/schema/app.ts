@@ -19,7 +19,7 @@ const timestamps = {
 
 export const unitTypeEnum = pgEnum("unit_type", ["mass", "volume", "count"]);
 export const locationEnum = pgEnum("location", ["warehouse", "sales_module"]);
-export const movementTypeEnum = pgEnum("movement_type", ["purchase", "transfer", "consumption", "adjustment", "expiration", "damage"]);
+export const movementTypeEnum = pgEnum("movement_type", ["purchase", "transfer", "consumption", "adjustment", "expiration", "damage","count" ]);
 export const optionalTypeEnum = pgEnum("optional_type", ["exclude","extra"]);
 export const itemStatusEnum = pgEnum("item_status", ["active", "inactive", "archived"]);
 
